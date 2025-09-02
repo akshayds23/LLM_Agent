@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LLM Agent + Research</title>
+
+  <!-- Bootstrap CSS + Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-body">
+  <nav class="navbar navbar-expand-lg border-bottom">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-semibold" href="#"><i class="bi bi-robot"></i> LLM Agent + Research</a>
+      <div class="d-flex align-items-center gap-3 ms-auto">
+        <div id="status" class="small text-secondary d-none">
+          <span class="spinner-border spinner-border-sm align-text-top me-2"></span>
+          Thinking…
+        </div>
+        <div class="form-check form-switch m-0">
+          <input class="form-check-input" type="checkbox" id="themeToggle" checked />
+          <label class="form-check-label small" for="themeToggle" title="Toggle dark/light page theme">
+            <i class="bi bi-moon-stars"></i>
+          </label>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container my-3">
+    <div id="alerts" class="mb-2"></div>
+
+    <!-- Provider & Settings -->
+    <div class="card mb-3 shadow-sm">
+      <div class="card-header fw-semibold"><i class="bi bi-gear"></i> Provider & Settings</div>
+      <div class="card-body row g-2 align-items-end">
+        <div class="col-12 col-md-3">
+          <label class="form-label">Provider</label>
+          <select id="provider" class="form-select">
+            <option value="openai">OpenAI</option>
+            <option value="groq">Groq</option>
+            <option value="anthropic">Anthropic Claude</option>
+            <option value="gemini">Google Gemini</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">API Key / Token</label>
+          <input id="apiKey" type="password" class="form-control" placeholder="sk-... or Groq key" />
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">Model</label>
+          <select id="model" class="form-select"></select>
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">Max tokens</label>
+          <input id="maxTokens" type="number" class="form-control" value="800" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs for Chat vs Research -->
+    <ul class="nav nav-tabs mb-3" id="modeTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="chat-tab" data-bs-toggle="tab" data-bs-target="#chat-pane" type="button" role="tab">
+          <i class="bi bi-chat-dots"></i> Chat
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="research-tab" data-bs-toggle="tab" data-bs-target="#research-pane" type="button" role="tab">
+          <i class="bi bi-journal-text"></i> Research
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Chat Panel -->
+      <div class="tab-pane fade show active" id="chat-pane" role="tabpanel">
+        <div class="card mb-3 shadow-lg chat-surface" id="chatCard" data-bs-theme="light">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-semibold"><i class="bi bi-chat-dots"></i> Conversation</span>
+            <div class="d-flex gap-2">
+              <button id="clear" class="btn btn-sm btn-outline-secondary"><i class="bi bi-trash"></i> Clear</button>
+              <button id="export" class="btn btn-sm btn-outline-primary"><i class="bi bi-download"></i> Export JSON</button>
+            </div>
+          </div>
+          <div id="chat" class="card-body chat-scroll"></div>
+          <div class="card-footer">
+            <div class="input-group">
+              <span class="input-group-text bg-transparent border-end-0"><i class="bi bi-person-fill"></i></span>
+              <textarea id="userInput" class="form-control border-start-0" rows="1" placeholder="Type a message..."></textarea>
+              <button id="send" class="btn btn-primary">
+                <i class="bi bi-send-fill"></i> Send
+              </button>
+            </div>
+            <div class="form-text">Normal assistant chat mode.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Research Panel -->
+      <div class="tab-pane fade" id="research-pane" role="tabpanel">
+        <div class="card mb-3 shadow-lg chat-surface" id="researchCard" data-bs-theme="light">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-semibold"><i class="bi bi-journal-text"></i> Research Assistant</span>
+            <!-- Updated: Report Dropdown -->
+            <div class="btn-group d-none" id="downloadReportGroup">
+              <button class="btn btn-sm btn-success dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-file-earmark-arrow-down"></i> Report
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" id="downloadReportMd">Download as Markdown</a></li>
+                <li><a class="dropdown-item" href="#" id="downloadReportPdf">Download as PDF</a></li>
+              </ul>
+            </div>
+          </div>
+          <div id="researchChat" class="card-body chat-scroll"></div>
+          <div class="card-footer">
+            <div class="input-group">
+              <span class="input-group-text bg-transparent border-end-0"><i class="bi bi-search"></i></span>
+              <textarea id="researchInput" class="form-control border-start-0" rows="1" placeholder="Enter research query..."></textarea>
+              <button id="researchSend" class="btn btn-primary">
+                <i class="bi bi-send-fill"></i> Go
+              </button>
+            </div>
+            <div class="form-text">
+              Research mode: retrieves sources, summarizes, compares, and generates a structured report.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Code output -->
+    <div class="card d-none shadow-sm" id="codeCard">
+      <div class="card-header fw-semibold"><i class="bi bi-terminal"></i> Code Output</div>
+      <pre class="m-0"><code id="codeOutput"></code></pre>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Markdown renderer -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<!-- PDF generator -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<!-- Your app logic -->
+<script src="agent.js"></script>
+</body>
+</html>
