@@ -40,7 +40,6 @@ A sophisticated chat interface featuring a modern dark theme and AI integration 
 ├── index.html    # Main HTML interface with Bootstrap integration
 ├── style.css     # Custom dark theme and responsive styling
 ├── agent.js      # Chat logic and API integrations
-└── vercel.json   # Static deployment configuration
 ```
 
 ## 🚀 Quick Start
@@ -157,3 +156,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
